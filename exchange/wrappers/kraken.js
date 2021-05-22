@@ -1,4 +1,4 @@
-const Kraken = require('kraken-api');
+const Kraken = require('kraken-exchange');
 const moment = require('moment');
 const _ = require('lodash');
 const exchangeUtils = require('../exchangeUtils');
