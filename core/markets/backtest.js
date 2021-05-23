@@ -45,6 +45,7 @@ var Market = function() {
   log.debug('*** Requested', requiredHistory, 'minutes of warmup history data, so reading db since', from.format(), 'UTC', 'and start backtest at', daterange.from, 'UTC');
 
   this.batchSize = config.backtest.batchSize;
+  log.debug('Batch size: ', this.batchSize);
   this.iterator = {
     from: from.clone(),
     to: from.clone().add(this.batchSize, 'm').subtract(1, 's')
@@ -92,8 +93,8 @@ Market.prototype.processCandles = function(err, candles) {
     var d = function(ts) {
       return moment.unix(ts).utc().format('YYYY-MM-DD HH:mm:ss');
     }
-    var from = d(_.first(candles).start);
-    var to = d(_.last(candles).start);
+    var from = _.first(candles) ? d(_.first(candles).start) : "Unknown";
+    var to = _.first(candles) ? d(_.last(candles).start) : "Unknown";
     log.warn(`Simulation based on incomplete market data (${this.batchSize - amount} missing between ${from} and ${to}).`);
   }
 

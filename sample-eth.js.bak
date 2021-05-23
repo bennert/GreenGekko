@@ -17,8 +17,8 @@ config.silent = false;
 config.watch = {
 
   // see https://gekko.wizb.it/docs/introduction/supported_exchanges.html
-  exchange: 'binance',
-  currency: 'USDT',
+  exchange: 'kraken',
+  currency: 'EUR',
   asset: 'ETH',
   fetchOrderbook: true,
 
@@ -370,7 +370,7 @@ config.backtest = {
 //  daterange: 'scan',
  daterange: {
    from: "2018-01-01T00:00:00+02:00",
-   to: "2020-12-31T00:00:00+02:00"
+   to: "2018-12-31T00:00:00+02:00"
 },
   batchSize: 1
 }

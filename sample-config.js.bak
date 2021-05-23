@@ -7,8 +7,7 @@ var config = {};
 //                          GENERAL SETTINGS
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-config.debug = true; // for additional logging / debugging
-config.silent = false;
+config.debug = false; // for additional logging / debugging
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                         WATCHING A MARKET
@@ -18,9 +17,9 @@ config.watch = {
 
   // see https://gekko.wizb.it/docs/introduction/supported_exchanges.html
   exchange: 'binance',
-  currency: 'BNB',
+  currency: 'USDT',
   fetchOrderbook: true,
-  asset: 'XLM',
+  asset: 'ETH',
 
   // You can set your own tickrate (refresh rate).
   // If you don't set it, the defaults are 2 sec for
@@ -34,10 +33,10 @@ config.watch = {
 
 config.tradingAdvisor = {
   enabled: true,
-  method: 'BWise2',
+  method: 'MACD',
   fastAdviceEmit: true,
-  candleSize: 30,
-  historySize: 0,
+  candleSize: 60,
+  historySize: 10,
 }
 
 // MACD settings:
@@ -195,12 +194,10 @@ config.ircbot = {
 }
 
 config.telegrambot = {
-  enabled: true,
-  token: '1760515249:AAEkLQWnXQ0xnTKyGhbkqFi8rrrkLPQxRN0',
-  emitUpdates: true,
-  emitTrades: true,
-  botName: 'Gekko',
-  adminPW: '123'
+  enabled: false,
+  // Receive notifications for trades and warnings/errors related to trading
+  emitTrades: false,
+  token: 'YOUR_TELEGRAM_BOT_TOKEN',
 };
 
 config.twitter = {
@@ -281,18 +278,14 @@ config.adviceWriter = {
   muteSoft: true,
 }
 
-config.adviceLogger = {
-  enabled: true
-}
-
 config.backtestResultExporter = {
   enabled: true,
   writeToDisk: true,
   data: {
     stratUpdates: false,
-    roundtrips: true,
-    stratCandles: false,
     portfolioValues: true,
+    stratCandles: true,
+    roundtrips: true,
     trades: true
   }
 }
@@ -329,7 +322,7 @@ config.postgresql = {
   schema: 'public',
   dependencies: [{
     module: 'pg',
-    version: '8.6.0'
+    version: '7.4.3'
   }]
 }
 
@@ -358,11 +351,11 @@ config.candleUploader = {
 // @link: https://gekko.wizb.it/docs/commandline/backtesting.html
 
 config.backtest = {
-  // daterange: 'scan',
-  daterange: {
-    from: "2018-01-01T00:00:00+02:00",
-    to: "2019-12-31T00:00:00+02:00"
-  },
+//  daterange: 'scan',
+// daterange: {
+   from: "2018-06-01",
+//   to: "2018-11-01"
+//},
   batchSize: 1000
 }
 
@@ -438,24 +431,6 @@ config.RSI = {
     persistence: 1
   }
 };
-
-config.n8_v2_BB_RSI_SL = {
-  interval: 14,
-  SL: 1,
-  BULL_RSI: 10,
-  BULL_RSI_high: 80,
-  BULL_RSI_low: 60,
-  BEAR_RSI: 15,
-  BEAR_RSI_high: 50,
-  BEAR_RSI_low: 20,
-  ADX: 3,
-  ADX_high: 70,
-  ADX_low: 50,
-  low: 30,
-  high: 70,
-  down: 0.1,
-  persistence: 1
-}
 
 // TSI settings:
 config.TSI = {

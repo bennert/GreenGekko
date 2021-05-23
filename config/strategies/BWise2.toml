@@ -1,0 +1,30 @@
+interval = 14
+
+[stoploss]
+stoploss_enabled = true
+
+[thresholds]
+low = 20
+high = 80
+persistence = 9
+
+[bbands]
+TimePeriod = 20
+NbDevUp = 2
+NbDevDn = 2
+
+[stochRsiSettings]
+optInTimePeriod = 14
+optInFastK_Period = 3
+optInFastD_Period = 3
+optInFastD_MAType = 0
+
+[tuStochSettings]
+optInFastKPeriod = 14
+optInSlowKPeriod = 1
+optInSlowDPeriod = 3
+
+[macdSettings]
+optInFastPeriod = 10
+optInSlowPeriod = 21
+optInSignalPeriod = 9
