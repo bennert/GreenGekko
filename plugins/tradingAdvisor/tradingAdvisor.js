@@ -56,18 +56,23 @@ Actor.prototype.setupStrategy = async function(cb) {
 
   let stratSettings;
   if(config[this.strategyName]) {
+    log.info('Set strategy settings')
     stratSettings = config[this.strategyName];
   }
 
   this.strategy = new WrappedStrategy(stratSettings);
   if (WrappedStrategy.prototype['init'] instanceof AsyncFunction) {
+    log.info('Init strategy async')
     await this.strategy.init();
   }
   else {
+    log.info('Init strategy')
     this.strategy.init();
   }
+  log.info('Start runner')
   this.strategy.startRunner();
 
+  log.info('Setup callback functions (deferredEmit)')
   this.strategy
     .on(
       'stratWarmupCompleted',
@@ -85,7 +90,8 @@ Actor.prototype.setupStrategy = async function(cb) {
       e => this.deferredEmit('indicator', e)
     )
 
-  this.strategy
+    log.info('Setup callback functions (not deferredEmit)')
+    this.strategy
     .on('tradeCompleted', this.processTradeCompleted);
 
   batcher.reg1MAsyncHandler(this.processAll1MCandles);
@@ -105,6 +111,7 @@ Actor.prototype.setupStrategy = async function(cb) {
 // HANDLERS
 // process the 1m candles
 Actor.prototype.processCandle = async function(candle, done) {
+  log.info('Process candle')
   this.candle = candle;  
   const completedBatch = await batcher.write([candle]);
 
@@ -119,6 +126,7 @@ Actor.prototype.processCandle = async function(candle, done) {
 
 // 1m candles with full warmup history
 Actor.prototype.processAll1MCandles = async function(candle) {
+  log.info('Process All 1M Candles')
   //strategy developers can implement their ONCANDLE function with or without async
   if (WrappedStrategy.prototype['onCandle'] instanceof AsyncFunction) {
     await this.strategy.onCandle(candle);
