@@ -2,11 +2,15 @@ interval = 14
 
 [stoploss]
 stoploss_enabled = true
+threshold = -0.02
 
 [thresholds]
 low = 20
 high = 80
-persistence = 9
+lowStochRsi = 40
+highStochRsi = 50
+persistenceBuy = 6
+persistenceSell = 3
 
 [bbands]
 TimePeriod = 20
@@ -25,6 +29,6 @@ optInSlowKPeriod = 1
 optInSlowDPeriod = 3
 
 [macdSettings]
-optInFastPeriod = 10
-optInSlowPeriod = 21
+optInFastPeriod = 12
+optInSlowPeriod = 26
 optInSignalPeriod = 9
