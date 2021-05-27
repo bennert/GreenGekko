@@ -26,7 +26,6 @@
     "convnetjs": "^0.3.0",
     "emailjs": "^1.0.5",
     "fs": "0.0.1-security",
-    "gekko": "0.0.9",
     "humanize-duration": "^3.18.0",
     "koa": "^1.2.0",
     "koa-bodyparser": "^2.2.0",
