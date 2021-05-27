@@ -36,29 +36,48 @@ config.tradingAdvisor = {
   enabled: true,
   method: 'BWise2',
   fastAdviceEmit: true,
-  candleSize: 30,
+  candleSize: 3,
   historySize: 0,
 }
 
-// MACD settings:
-config.MACD = {
-  // EMA weight (α)
-  // the higher the weight, the more smooth (and delayed) the line
-  short: 10,
-  long: 21,
-  signal: 9,
-  // the difference between the EMAs (to act as triggers)
-  thresholds: {
-    down: -0.025,
-    up: 0.025,
-    // How many candle intervals should a trend persist
-    // before we consider it real?
-    persistence: 1
-  }
-};
-
 // settings for other strategies can be found at the bottom, note that only
 // one strategy is active per gekko, the other settings are ignored.
+config.BWise2 = {
+  interval: 14,
+  stoploss: {
+    stoploss_enabled: true,
+    threshold: -0.02  
+  },
+  thresholds: {
+    low: 20,
+    high: 80,
+    lowStochRsi: 40,
+    highStochRsi: 50,
+    persistence: 9
+  },  
+  bbands : {
+    TimePeriod: 20,
+    NbDevUp: 2,
+    NbDevDn: 2  
+  },  
+  stochRsiSettings: {
+    optInTimePeriod: 14,
+    optInFastK_Period: 3,
+    optInFastD_Period: 3,
+    optInFastD_MAType: 0  
+  },  
+  tuStochSettings: {
+    optInFastKPeriod: 14,
+    optInSlowKPeriod: 1,
+    optInSlowDPeriod: 3
+  },
+  macdSettings: {
+    optInFastPeriod: 12,
+    optInSlowPeriod: 26,
+    optInSignalPeriod: 9
+  }
+}
+
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                       CONFIGURING PLUGINS
@@ -311,12 +330,9 @@ config.adapter = 'postgresql';
 
 config.sqlite = {
   path: 'plugins/sqlite',
-
   dataDirectory: 'history',
   version: 0.1,
-
   journalMode: require('./web/isWindows.js') ? 'DELETE' : 'WAL',
-
   dependencies: []
 }
 
@@ -360,8 +376,8 @@ config.candleUploader = {
 config.backtest = {
   // daterange: 'scan',
   daterange: {
-    from: "2018-01-01T00:00:00+02:00",
-    to: "2019-12-31T00:00:00+02:00"
+    from: "2021-01-01T00:00:00+02:00",
+    to: "2021-05-20T00:00:00+02:00"
   },
   batchSize: 1000
 }
@@ -382,6 +398,23 @@ config.importer = {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      OTHER STRATEGY SETTINGS
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// MACD settings:
+config.MACD = {
+  // EMA weight (α)
+  // the higher the weight, the more smooth (and delayed) the line
+  short: 10,
+  long: 21,
+  signal: 9,
+  // the difference between the EMAs (to act as triggers)
+  thresholds: {
+    down: -0.025,
+    up: 0.025,
+    // How many candle intervals should a trend persist
+    // before we consider it real?
+    persistence: 1
+  }
+};
 
 // Exponential Moving Averages settings:
 config.DEMA = {
