@@ -38,6 +38,7 @@ config.tradingAdvisor = {
   fastAdviceEmit: true,
   candleSize: 3,
   historySize: 0,
+  avgVol1Min: 100
 }
 
 // settings for other strategies can be found at the bottom, note that only

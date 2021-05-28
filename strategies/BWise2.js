@@ -23,7 +23,7 @@ method.init = function () {
     zone: 'none',  // none, top, high, low, bottom
     duration: 0
   }
-  
+
   this.stochRsiTrend = {
     zone: 'none',  // none, top, middle, bottom
     duration: 0
@@ -105,16 +105,17 @@ method.check = function (candle) {
   // StochRSI zone detection
   var zoneStochRsi = 'none'
   switch (true) {
-    case this.stochRSI < this.settings.thresholds.lowStochRsi:
+    case this.stochRSI < this.settings.thresholds.lowRsi:
       zoneStochRsi = 'bottom'
       break
-    case this.stochRSI < this.settings.thresholds.highStochRsi:
+    case this.stochRSI < this.settings.thresholds.highRsi:
       zoneStochRsi = 'middle'
       break
     default:
       zoneStochRsi = 'top'
       break
   }
+
   this.stochRsiTrend = {
     zone: zoneStochRsi,
     duration: (this.stochRsiTrend.zone == zoneStochRsi ? this.stochRsiTrend.duration + 1 : 0)
@@ -170,19 +171,22 @@ method.check = function (candle) {
     this.prevAdvice = 'short'
   } else {
     if (
-      'long' != this.prevAdvice &&
       // this.prevMACDHist < macdHist &&
       // macdVal > macdSignal &&
-      // bbPercentage > 2 && // Enough to trade?
+      macdSignal < 0 &&
+      bbPercentage > this.settings.bbands.minPercentage && // Enough to trade?
       // bbPercentage > this.prevBBPerc && // Increasing BB
       // price <= BB.lower &&
       this.stochRsiTrend.zone === 'bottom' &&
-      this.stochRsiTrend.duration > this.settings.thresholds.persistenceBuy
+      this.stochRsiTrend.duration > this.settings.thresholds.persistenceBuy &&
+      fastk < this.settings.thresholds.lowStochRsi &&
+      fastd < this.settings.thresholds.lowStochRsi &&
       // rsi.result <= this.settings.thresholds.low &&
       // (stochK - stochD) > 5  && // should be volatile
       // stochD < stochK &&
       // stochD < 20 &&
       // this.bbTrend.duration >= this.settings.thresholds.persistenceBuy
+      'long' != this.prevAdvice
     ) {
       console.info('========================================')
       console.info('Buy: ', candle.start.format())
@@ -204,10 +208,12 @@ method.check = function (candle) {
     }
     if (
       // profitPercentage < -2 || ( // Accept 2% loss
-      // price >= BB.middle && 
-      this.stochRsiTrend.zone === 'top' &&
-      this.stochRsiTrend.duration > this.settings.thresholds.persistenceSell &&
-        //rsi.result >= this.settings.thresholds.high &&
+      // price >= BB.middle &&
+      // this.stochRsiTrend.zone === 'top' &&
+      // this.stochRsiTrend.duration > this.settings.thresholds.persistenceSell &&
+      //rsi.result >= this.settings.thresholds.high &&
+      fastd > this.settings.thresholds.highStochRsi &&
+      fastk < fastd &&
       // stochD > stochK &&
       // stochD > 20 &&
       // this.prevMACDHist > macdHist &&
@@ -220,6 +226,8 @@ method.check = function (candle) {
       console.info('Zone:', this.bbTrend.zone)
       // console.info('Stoch D: ', stochD)
       // console.info('Stoch K: ', stochK)
+      console.info('StochRSI D: ', fastd)
+      console.info('StochRSI K: ', fastk)
       console.info('RSI: ', rsi.result)
       console.info('Stoch RSI: ', this.stochRSI)
       console.info('MACD value: ', macdVal)

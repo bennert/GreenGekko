@@ -7,8 +7,10 @@ threshold = -0.02
 [thresholds]
 low = 20
 high = 80
-lowStochRsi = 40
-highStochRsi = 50
+lowRsi = 30
+highRsi = 70
+lowStochRsi = 20
+highStochRsi = 80
 persistenceBuy = 6
 persistenceSell = 3
 
@@ -16,6 +18,7 @@ persistenceSell = 3
 TimePeriod = 20
 NbDevUp = 2
 NbDevDn = 2
+minPercentage = 4
 
 [stochRsiSettings]
 optInTimePeriod = 14

@@ -4,7 +4,7 @@ var config = util.getConfig();
 var dirs = util.dirs();
 var log = require(dirs.core + 'log');
 var moment = require('moment');
-
+log.info('config.adapter: ', config.adapter)
 var adapter = config[config.adapter];
 var Reader = require(dirs.gekko + adapter.path + '/reader');
 var daterange = config.backtest.daterange;
@@ -40,7 +40,6 @@ var Market = function() {
   log.write('');
 
   this.reader = new Reader();
-  
 
   log.debug('*** Requested', requiredHistory, 'minutes of warmup history data, so reading db since', from.format(), 'UTC', 'and start backtest at', daterange.from, 'UTC');
 

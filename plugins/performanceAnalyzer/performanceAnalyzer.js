@@ -134,11 +134,12 @@ PerformanceAnalyzer.prototype.registerRoundtripPart = function(trade) {
     // this is not part of a valid roundtrip
     return;
   }
-
   if(trade.action === 'buy') {
+    console.info('(Bennert) buy date: ', trade.date)
     if (this.roundTrip.exit) {
       this.roundTrip.id++;
       this.roundTrip.exit = false
+      console.info('Exit roundtrip')
     }
 
     this.roundTrip.entry = {
@@ -148,6 +149,7 @@ PerformanceAnalyzer.prototype.registerRoundtripPart = function(trade) {
     }
     this.openRoundTrip = true;
   } else if(trade.action === 'sell') {
+    console.info('(Bennert) sell date: ', trade.date)
     this.roundTrip.exit = {
       date: trade.date,
       price: trade.price,
@@ -160,6 +162,7 @@ PerformanceAnalyzer.prototype.registerRoundtripPart = function(trade) {
 }
 
 PerformanceAnalyzer.prototype.registerShortRoundtripPart = function(trade) {
+  console.info('registerShortRoundtripPart')
   if(this.trades === 1 && trade.action === 'buy') {
     // this is not part of a valid roundtrip
     return;

@@ -1,52 +1,55 @@
-const _ = require('lodash');
+const _ = require('lodash')
 
-const util = require('../../core/util');
-const moment = require('moment');
-const ENV = util.gekkoEnv();
+const util = require('../../core/util')
+const moment = require('moment')
+const ENV = util.gekkoEnv()
 
-const config = util.getConfig();
-const calcConfig = config.paperTrader;
-const watchConfig = config.watch;
-const shortTrading = config.performanceAnalyzer.shortTrading;
-const dirs = util.dirs();
-const log = require(dirs.core + 'log');
+const config = util.getConfig()
+const calcConfig = config.paperTrader
+const watchConfig = config.watch
+const shortTrading = config.performanceAnalyzer.shortTrading
+const dirs = util.dirs()
+const log = require(dirs.core + 'log')
+const avgVol = config.tradingAdvisor.avgVol1Min * config.tradingAdvisor.candleSize
 
-const TrailingStop = require(dirs.broker + 'triggers/trailingStop');
+const TrailingStop = require(dirs.broker + 'triggers/trailingStop')
 
 const PaperTrader = function() {
-  _.bindAll(this);
+  _.bindAll(this)
 
   if(calcConfig.feeUsing === 'maker') {
-    this.rawFee = calcConfig.feeMaker;
+    this.rawFee = calcConfig.feeMaker
   } else {
-    this.rawFee = calcConfig.feeTaker;
+    this.rawFee = calcConfig.feeTaker
   }
 
-  this.fee = 1 - this.rawFee / 100;
+  this.fee = 1 - this.rawFee / 100
 
-  this.currency = watchConfig.currency;
-  this.asset = watchConfig.asset;
+  this.currency = watchConfig.currency
+  this.asset = watchConfig.asset
 
   this.portfolio = {
     asset: calcConfig.simulationBalance.asset,
     currency: calcConfig.simulationBalance.currency,
   }
 
-  this.balance = false;
+  this.balance = false
 
   if(this.portfolio.asset > 0 && !shortTrading) {
-    this.exposed = true;
+    this.exposed = true
   }
   else {
-    this.exposed = false;
+    this.exposed = false
   }
 
-  this.propogatedTrades = 0;
-  this.propogatedTriggers = 0;
+  this.propogatedTrades = 0
+  this.propogatedTriggers = 0
 
-  this.warmupCompleted = false;
+  this.warmupCompleted = false
 
-  this.warmupCandle;
+  this.warmupCandle
+  this.previousAdvice
+  this.waitForVolume = false
 }
 
 PaperTrader.prototype.relayPortfolioChange = function() {
@@ -82,10 +85,8 @@ PaperTrader.prototype.updatePosition = function(what) {
   let cost;
   let amount;
 
-  if (!shortTrading) {
-    // virtually trade all {currency} to {asset}
-    // at the current price (minus fees)
-    if(what === 'long') {
+  if (!shortTrading) {    
+    if(what === 'long') {// virtually trade all {currency} to {asset} at the current price (minus fees)
       cost = (1 - this.fee) * this.portfolio.currency;
       this.portfolio.asset += this.extractFee(this.portfolio.currency / this.price);
       amount = this.portfolio.asset;
@@ -93,11 +94,7 @@ PaperTrader.prototype.updatePosition = function(what) {
 
       this.exposed = true;
       this.trades++;
-    }
-
-    // virtually trade all {asset} to {currency}
-    // at the current price (minus fees)
-    else if(what === 'short') {
+    } else if(what === 'short') {// virtually trade all {asset} to {currency} at the current price (minus fees)
       cost = (1 - this.fee) * (this.portfolio.asset * this.price);
       amount = this.portfolio.asset;
       this.portfolio.currency += this.extractFee(this.portfolio.asset * this.price);
@@ -106,8 +103,7 @@ PaperTrader.prototype.updatePosition = function(what) {
       this.exposed = false;
       this.trades++;
     }
-  }
-  else {
+  } else {
     if(what === 'long') { //actually a closing short
       if (this.portfolio.asset == 0) {
         this.portfolio.asset = this.portfolio.currency / this.price;
@@ -123,8 +119,7 @@ PaperTrader.prototype.updatePosition = function(what) {
 
       this.exposed = false;
       this.trades++;
-    }
-    else if(what === 'short') { //actually an opening short
+    } else if(what === 'short') { //actually an opening short
       if (this.portfolio.currency == 0) {
         this.portfolio.currency = this.portfolio.asset * this.price;
         this.portfolio.asset = 0;
@@ -155,10 +150,21 @@ PaperTrader.prototype.now = function() {
 }
 
 PaperTrader.prototype.processAdvice = function(advice) {
+  if (this.waitForVolume && advice.recommendation != this.previousAdvice.recommendation) {
+    this.waitForVolume = false
+    this.previousAdvice = undefined
+    return log.warn('[Papertrader] Cancel trade as previous unexecuted trade would negate each other')
+  }
+  if (this.candle.volume < avgVol && !this.waitForVolume) {
+    this.previousAdvice = advice
+    this.waitForVolume = true
+    return log.warn('[Papertrader] Not enough volume to process trade, will wait till next candle')
+  }
   let action;
   var mytrigger = _.clone(advice.trigger);
   
   if(advice.recommendation === 'short') {
+    console.info('(Bennert) Process Advice short')
     action = 'sell';
 
     // clean up potential old stop trigger
@@ -173,6 +179,7 @@ PaperTrader.prototype.processAdvice = function(advice) {
     }
 
   } else if(advice.recommendation === 'long') {
+    console.info('(Bennert) Process Advice long')
     action = 'buy';
 
     // clean up potential old stop trigger
@@ -348,6 +355,16 @@ PaperTrader.prototype.processCandle = function(candle, done) {
 
   if(this.activeStopTrigger) {
     this.activeStopTrigger.instance.updatePrice(this.price);
+  }
+
+  if (this.waitForVolume) {
+    log.debug('Candle Volume =', candle.volume)
+  }
+
+  if (candle.volume > avgVol && this.waitForVolume) {
+    this.processAdvice(this.previousAdvice)
+    this.waitForVolume = false
+    this.previousAdvice = undefined
   }
 
   done();
